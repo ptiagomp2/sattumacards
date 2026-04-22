@@ -332,6 +332,7 @@ body {
 /* Category Label Styles */
 .category-label-row {
   display: grid;
+  justify-items: center;
   gap: var(--deck-gap);
   grid-template-columns: repeat(6, var(--card-width));
   margin-bottom: 8px;
@@ -339,15 +340,19 @@ body {
 }
 
 .category-label-row span {
+  align-items: flex-start;
   color: var(--table-label-text);
+  display: flex;
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   font-weight: 700;
+  justify-content: center;
   line-height: 1.15;
   min-height: 24px;
   text-align: center;
   text-shadow: 0 1px 2px var(--table-label-shadow);
   text-transform: uppercase;
+  width: var(--card-width);
 }
 
 .dropzone-label-row {
@@ -505,10 +510,11 @@ img {
 /* Deck Container Styles */
 
 .deck-container {
-  display: flex;
-  gap: var(--deck-gap);
+  column-gap: var(--deck-gap);
+  display: grid;
+  grid-template-columns: repeat(6, var(--card-width));
   margin-bottom: clamp(8px, 2vh, 15px);
-  /* animation: fadeInAnimation 0.5s ease-in; */
+  width: max-content;
 }
 
 /* Deck Styles */
@@ -533,7 +539,7 @@ img {
   flex-direction: column;
   line-height: 1.2;
   transform-style: preserve-3d;
-  transition: transform 0.5s cubic-bezier(0.42, 0, 0.58, 1.0), top 0.5s cubic-bezier(0.42, 0, 0.58, 1.0);
+  transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), top 0.35s ease, left 0.35s ease;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -541,6 +547,12 @@ img {
   border-radius: 5px;
   font-weight: bold;
   transform: translate(0, var(--card-lift)) rotateY(0deg);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.card.on-table {
+  transform: translate(0, 0) rotateY(0deg);
 }
 
 
@@ -549,7 +561,11 @@ img {
 }
 
 .card.flip {
-  transform: rotateY(180deg);
+  transform: translate(0, var(--card-lift)) rotateY(180deg);
+}
+
+.card.on-table.flip {
+  transform: translate(0, 0) rotateY(180deg);
 }
 
 .card .front, 
@@ -559,9 +575,11 @@ img {
   height: 100%;
   color: black;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+  transform-style: preserve-3d;
 }
 
 .card .front {
@@ -591,9 +609,11 @@ img {
 .dropzone-container {
   position: static;
 
-  display: flex;
-  gap: var(--dropzone-gap);
+  column-gap: var(--dropzone-gap);
+  display: grid;
+  grid-template-columns: repeat(6, var(--card-width));
   margin-top: clamp(8px, 2vh, 15px);
+  width: max-content;
 }
 
 /* Dropzone Styles */

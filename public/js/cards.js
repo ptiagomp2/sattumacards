@@ -3,6 +3,8 @@ import { DECKS, getDeckById } from "./deck-config.js";
 const CARD_COUNT = 9;
 const SHUFFLE_ANIMATION_DURATION = 1200;
 const DEAL_ANIMATION_DURATION = 1500;
+const QUICK_REVEAL_STAGGER_MS = 110;
+const QUICK_REVEAL_START_MS = 120;
 
 function formatCardText(text) {
   if (text.length <= 15) {
@@ -36,6 +38,18 @@ export function createCards({ socket, i18n, showNotice }) {
 
   function getAllCards() {
     return allCards;
+  }
+
+  function setCardTableState(card, isOnTable) {
+    if (!card) {
+      return;
+    }
+
+    card.classList.toggle("on-table", isOnTable);
+
+    if (isOnTable) {
+      card.classList.remove("initial-animation");
+    }
   }
 
   function createCard(deckElement, deckId, cardIndex) {
@@ -98,6 +112,7 @@ export function createCards({ socket, i18n, showNotice }) {
   function applyBoardState(boardState = {}) {
     getAllCards().forEach((card) => {
       card.classList.remove("flip");
+      setCardTableState(card, false);
     });
 
     Object.keys(boardState.discardedCards || {}).forEach((cardId) => {
@@ -111,6 +126,7 @@ export function createCards({ socket, i18n, showNotice }) {
       if (card && parent) {
         parent.appendChild(card);
         Object.assign(card.style, { position: "absolute", top: "0", left: "0" });
+        setCardTableState(card, true);
       }
     });
 
@@ -120,6 +136,28 @@ export function createCards({ socket, i18n, showNotice }) {
       if (card) {
         card.classList.toggle("flip", Boolean(isFlipped));
       }
+    });
+  }
+
+  function applyBoardStateWithReveal(boardState = {}) {
+    const hiddenBoardState = {
+      ...boardState,
+      flippedCards: {},
+    };
+    const flippedCards = Object.entries(boardState.flippedCards || {}).filter(
+      ([, isFlipped]) => Boolean(isFlipped)
+    );
+
+    applyBoardState(hiddenBoardState);
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        flippedCards.forEach(([cardId], index) => {
+          window.setTimeout(() => {
+            document.getElementById(cardId)?.classList.add("flip");
+          }, QUICK_REVEAL_START_MS + index * QUICK_REVEAL_STAGGER_MS);
+        });
+      });
     });
   }
 
@@ -205,6 +243,7 @@ export function createCards({ socket, i18n, showNotice }) {
 
   return {
     applyBoardState,
+    applyBoardStateWithReveal,
     clearBoard,
     playShuffleThenReset,
     refreshTexts,

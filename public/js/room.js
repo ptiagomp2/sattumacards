@@ -355,6 +355,8 @@ export function createRoom({ socket, i18n, cards, showNotice }) {
       if (card && newParent) {
         newParent.appendChild(card);
         Object.assign(card.style, { position: "absolute", top: "0", left: "0" });
+        card.classList.add("on-table");
+        card.classList.remove("initial-animation");
       }
     });
 
@@ -379,7 +381,13 @@ export function createRoom({ socket, i18n, cards, showNotice }) {
 
       const resetBoard = () => {
         cards.resetDeckElements();
-        cards.applyBoardState(payload.boardState);
+        const hasVisibleCards = Object.keys(payload.boardState?.cardPositions || {}).length > 0;
+
+        if (payload.animate && hasVisibleCards) {
+          cards.applyBoardStateWithReveal(payload.boardState);
+        } else {
+          cards.applyBoardState(payload.boardState);
+        }
         cards.refreshTexts();
       };
 
